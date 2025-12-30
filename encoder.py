@@ -594,7 +594,8 @@ if __name__ == "__main__":
 
     # נבדוק גם עם 5 שגיאות (מעבר ליכולת פענוח ייחודי) - זה לא תמיד יעבוד
     print("\nTest 2: 5 errors (beyond unique decoding)")
-    print("Note: This may not always succeed due to algorithm limitations.")
+    print("Note: This may not always succeed due to algorithm limitations")
+
     test_passed_5 = test_list_decoding_finds_original(
         num_errors=5, num_trials=10, assert_success=False
     )
