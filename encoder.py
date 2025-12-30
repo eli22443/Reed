@@ -544,4 +544,4 @@ if __name__ == "__main__":
 
 # ד. פענוח רשימה [cite: 9]
 candidates = sudan_list_decoding(received, n, k)
-print(f"Success! Found {len(candidates)} potential messages in the list.") 
+print(f"Success! Found {len(candidates)} potential messages in the list.")
