@@ -6,7 +6,7 @@ import numpy as np
 GF = galois.GF(2**8)
 n = 15  # אורך מילת הקוד (n) [cite: 22]
 k = 7   # אורך הודעת המקור (k) [cite: 22]
-alpha = GF(range(n))  # נקודות הערכה [cite: 18]
+alpha = GF(list(range(n)))  # נקודות הערכה [cite: 18]
 
 def encode_rs(message_symbols):
     """קידוד הודעה לפולינום והערכתו בנקודות alpha [cite: 20, 21]"""
@@ -16,11 +16,10 @@ def encode_rs(message_symbols):
     return poly(alpha)
 
 def sudan_list_decoding(received_y, n, k):
-    """מימוש אלגוריתם Sudan ל-List Decoding [cite: 26, 27]"""
-    # שלב 1: אינטרפולציה - מציאת Q(X, Y) [cite: 30]
-    dy = 1  # דרגה ב-Y
-    dx = (n // (dy + 1))  # דרגה ב-X
+    dy = 1
+    dx = k + 2 
     
+    # בניית המטריצה (אינטרפולציה) [cite: 30]
     A = []
     for i in range(n):
         row = []
@@ -31,15 +30,39 @@ def sudan_list_decoding(received_y, n, k):
     
     A = GF(A)
     null_space = A.null_space()
-    
+    # ... (המשך אחרי null_space = A.null_space())
+
     if len(null_space) == 0:
         return []
 
-    # שלב 2: מציאת פולינומים p(X) שהם שורשים (Root Finding) [cite: 32, 33]
-    # כאן אנחנו בודקים אילו פולינומים מהודעת המקור פותרים את המשוואה
+    # לוקחים את פתרון המקדמים הראשון שמצאנו [cite: 31]
     coeffs = null_space[0]
-    # (לצורך הפשטות בקוד הלימודי, נחזיר את המקדמים כרשימה)
-    return ["List of candidate polynomials found"]
+    
+    # חילוץ המקדמים של A(x) ו-B(x) לפי סדר המילוי במטריצה שלכם
+    # במטריצה שלכם (שורות 26-27): r רץ בתוך j
+    # לכן dx+1 המקדמים הראשונים שייכים ל-j=0 (כלומר A(x))
+    # והבאים שייכים ל-j=1 (כלומר B(x))
+    num_x = dx + 1
+    coeffs_A = coeffs[0 : num_x]
+    coeffs_B = coeffs[num_x : 2 * num_x]
+
+    # יצירת הפולינומים [cite: 20]
+    A_x = galois.Poly(coeffs_A[::-1], field=GF)
+    B_x = galois.Poly(coeffs_B[::-1], field=GF)
+
+    # מציאת הודעת המקור p(X) = -A(X) / B(X) 
+    try:
+        # חילוק פולינומים
+        p_x, remainder = divmod(-A_x, B_x)
+        
+        # אם החילוק מדויק והדרגה מתאימה, מצאנו מועמד! [cite: 33]
+        if remainder == 0 and p_x.degree <= k-1:
+            decoded_msg = p_x.coeffs(size=k)[::-1]
+            return [decoded_msg]
+    except:
+        pass
+
+    return []
 
 # --- הרצה ובדיקה ---
 
@@ -63,3 +86,4 @@ print(f"Received with {len(error_indices)} errors.")
 # ד. פענוח רשימה [cite: 9]
 candidates = sudan_list_decoding(received, n, k)
 print(f"Success! Found {len(candidates)} potential messages in the list.")
+print(candidates)
