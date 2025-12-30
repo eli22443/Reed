@@ -604,4 +604,4 @@ if __name__ == "__main__":
             "[SUCCESS] All tests passed! List decoding successfully finds original message."
         )
     else:
-        print("⚠ Some tests failed. Algorithm may need parameter adjustment.")
+        print("⚠ Some tests failed. Algorithm may need parameter adjustment.....")
